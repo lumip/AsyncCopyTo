@@ -23,10 +23,17 @@ namespace AsyncCopyTo
         /// <summary>
         /// Asynchronous version of CopyTo with IProgress interface for progress reports.
         /// 
-        /// Features concurrent reading and writing.
+        /// Features concurrent reading and writing, i.e., it will fill new buffers by reading from the source
+        /// concurrently to writing out previously read buffers to the destination for maximum throughput.
+        /// Progress reports are made after each completed write of a buffer, i.e., <paramref name="bufferSize" /> bytes.
         /// </summary>
+        /// <param name="destination">The stream to which the contents of the current stream will be copied.</param>
+        /// <param name="progress">The IProgress instance to which progress reports will be made.</param>
+        /// <param name="bufferSize">The size, in bytes, of the internal copying buffer. This value must be greater than zero. The default size is 81920.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <param name="bufferCount">The number of internal copying buffers for concurrent reading and writing. The default value is 2.</param>
         public static async Task CopyToAsync(
-            this Stream source, Stream destination, IProgress<long> progress, int bufferSize = 0x1000, CancellationToken cancellationToken = default(CancellationToken), int bufferCount = 2)
+            this Stream source, Stream destination, IProgress<long> progress, int bufferSize = 81920, CancellationToken cancellationToken = default(CancellationToken), int bufferCount = 2)
         {
             BufferPool buffers = new BufferPool(bufferSize, bufferCount);
 
